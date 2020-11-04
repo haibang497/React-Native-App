@@ -1,0 +1,1 @@
+export const baseUrl = "http://json-server-reactnative.herokuapp.com/";

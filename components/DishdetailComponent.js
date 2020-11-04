@@ -1,8 +1,23 @@
+// redux
+import { connect } from "react-redux";
+import { postFavorite } from '../redux/ActionCreator';
+
+const mapStateToProps = (state) => {
+  return {
+    dishes: state.dishes,
+    comments: state.comments,
+    favorites: state.favorites
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  postFavorite: (dishId) => dispatch(postFavorite(dishId))
+});
+
 import React, { Component } from "react";
 import { View, Text, YellowBox, ScrollView, FlatList } from "react-native";
 import { Card, Image, Icon } from "react-native-elements";
-import { DISHES } from "../shared/dishes";
-import { COMMENTS } from "../shared/comments";
+import { baseUrl } from "../shared/baseUrl";
 
 class RenderDish extends Component {
   render() {
@@ -11,7 +26,7 @@ class RenderDish extends Component {
       return (
         <Card>
           <Image
-            source={require("./images/uthappizza.png")}
+            source={{ uri: baseUrl + dish.image }}
             style={{
               width: "100%",
               height: 100,
@@ -73,11 +88,6 @@ class RenderComments extends Component {
 class Dishdetail extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      dishes: DISHES,
-      comments: COMMENTS,
-      favorites: [],
-    };
     YellowBox.ignoreWarnings(["VirtualizedLists should never be nested"]);
   }
 
@@ -86,12 +96,12 @@ class Dishdetail extends Component {
     return (
       <ScrollView>
         <RenderDish
-          dish={this.state.dishes[dishId]}
-          favorite={this.state.favorites.some((el) => el === dishId)}
+          dish={this.props.dishes.dishes[dishId]}
+          favorite={this.props.favorites.some((el) => el === dishId)}
           onPress={() => this.markFavorite(dishId)}
         />
         <RenderComments
-          comments={this.state.comments.filter(
+          comments={this.props.comments.comments.filter(
             (comment) => comment.dishId === dishId
           )}
         />
@@ -100,7 +110,7 @@ class Dishdetail extends Component {
   }
 
   markFavorite(dishId) {
-    this.setState({ favorites: this.state.favorites.concat(dishId) });
+    this.props.postFavorite(dishId);
   }
 }
-export default Dishdetail;
+export default connect(mapStateToProps, mapDispatchToProps)(Dishdetail);
